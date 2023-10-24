@@ -9,21 +9,38 @@ interface Directory {
   name: string;
   path: string;
   is_dir: boolean;
+  is_compressed: boolean;
 }
 
 function App() {
   const [directory, setDirectory] = useState([]);
+  const [selectedFile, setSelectedFile] = useState<Directory>(null);
+  const [selectedFileIndex, setSelectedFileIndex] = useState(-1);
 
-  const onClickHandler = async (currDir: Directory) => {
-    console.log(currDir);
+  const clearSelection = () => {
+    setSelectedFile(null);
+    setSelectedFileIndex(-1);
+  }
+
+  const onClickHandler = async (currDir: Directory, currIndex: number) => {
     if(currDir.is_dir){
-      invoke("click_dir", {selectedDir: currDir}).then((result) => {
+        clearSelection();
+        invoke("click_dir", {selectedDir: currDir}).then((result) => {
         setDirectory(result);
       });
+    }else{
+      if(selectedFileIndex === currIndex){
+        clearSelection();
+      }else{
+        setSelectedFileIndex(currIndex);
+        setSelectedFile(currDir);
+      }
     }
   }
 
   const backClickHandler = () => {
+    setSelectedFile(null);
+    setSelectedFileIndex(-1);
     invoke("back_dir").then((result) => {
       setDirectory(result);
     });
@@ -35,14 +52,18 @@ function App() {
     });
   }, [directory]);
 
+  useEffect(() => {
+    console.log('selectedFile = ',selectedFile)
+  }, [selectedFile])
+    
   return (
     <div className="container">
       <h1>Pascal File Compressor</h1>
       <div className="backButton">
         <button onClick={backClickHandler}>Back</button>
       </div>
-      {directory.map((file) => (
-        <div className="fileDisplay" onClick={() => onClickHandler(file)}>
+      {directory.map((file, index) => (
+        <div key={index} className="fileDisplay" style={selectedFileIndex === index ? {"border": "2px solid blue"}: {}} onClick={() => onClickHandler(file, index)}>
           <span>
           {file.is_dir ? (
             <img src={dirLogo} style={{"height": "50px", "width": "50px"}} />
@@ -53,6 +74,14 @@ function App() {
           <p>{file.name}</p>
         </div>
       ))}
+      <div className="compressedButton">
+       {(selectedFile && !selectedFile.is_compressed) ? (
+        <button>Compress</button>   
+        ):(selectedFile) ? (
+          <button>Decompress</button>
+        ): (<></>)
+       } 
+      </div>
     </div>
   )
 }

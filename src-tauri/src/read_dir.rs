@@ -5,6 +5,7 @@ pub struct CurrFile {
     pub name: String,
     pub path: String,
     pub is_dir: bool,
+    pub is_compressed: bool,
 }
 
 pub struct Directory {
@@ -45,10 +46,12 @@ impl Directory {
                 .unwrap_or("no_name")
                 .to_string();
             let is_dir = path.is_dir();
+            let is_compressed = name.ends_with(".pcompressed");
             curr_files.push(CurrFile {
                 name,
                 path: path.to_str().unwrap().to_string(),
                 is_dir,
+                is_compressed,
             })
         }
         curr_files
