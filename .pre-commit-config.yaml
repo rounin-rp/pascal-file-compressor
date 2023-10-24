@@ -1,0 +1,18 @@
+repos:
+- hooks:
+  - id: commitizen
+  repo: https://github.com/commitizen-tools/commitizen
+  rev: 3.2.2
+
+- repo: https://github.com/doublify/pre-commit-rust
+  rev: v1.0
+  hooks:
+  - id: fmt
+    name: fmt
+    entry: bash -c 'cd src-tauri && cargo fmt --all'
+  - id: cargo-check
+    name: cargo-check
+    entry: bash -c 'cd src-tauri && cargo check'
+  - id: clippy
+    name: clippy
+    entry: bash -c 'cd src-tauri && cargo clippy'
