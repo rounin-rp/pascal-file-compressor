@@ -46,17 +46,21 @@ function App() {
     });
   }
 
+  const compressClickHandler = () => {
+      invoke("plugin:compression|compress_file", {currFile: selectedFile}).then((result) => {
+      invoke("plugin:read_dir|read_dir").then((result) => {
+        setDirectory(result);
+      })
+    })
+  }
+
   useEffect(() => {
     invoke("plugin:read_dir|read_dir").then((result) => {
       setDirectory(result);
     });
-    console.log('directory = ', directory);
   }, [directory]);
 
-  useEffect(() => {
-    console.log('selectedFile = ',selectedFile)
-  }, [selectedFile])
-    
+   
   return (
     <div className="container">
       <h1>Pascal File Compressor</h1>
@@ -77,7 +81,7 @@ function App() {
       ))}
       <div className="compressedButton">
        {(selectedFile && !selectedFile.is_compressed) ? (
-        <button>Compress</button>   
+        <button onClick={compressClickHandler}>Compress</button>   
         ):(selectedFile) ? (
           <button>Decompress</button>
         ): (<></>)

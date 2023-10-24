@@ -12,6 +12,7 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![greet,])
         .plugin(services::read_dir::init())
+        .plugin(services::compression::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
