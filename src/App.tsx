@@ -54,6 +54,14 @@ function App() {
     })
   }
 
+  const decompressClickHandler = () => {
+    invoke("plugin:compression|extract_file", {currFile: selectedFile}).then((result) => {
+      invoke("plugin:read_dir|read_dir").then((result) => {
+        setDirectory(result);
+      })
+    })
+  }
+
   useEffect(() => {
     invoke("plugin:read_dir|read_dir").then((result) => {
       setDirectory(result);
@@ -83,7 +91,7 @@ function App() {
        {(selectedFile && !selectedFile.is_compressed) ? (
         <button onClick={compressClickHandler}>Compress</button>   
         ):(selectedFile) ? (
-          <button>Decompress</button>
+          <button onClick={decompressClickHandler}>Decompress</button>
         ): (<></>)
        } 
       </div>
