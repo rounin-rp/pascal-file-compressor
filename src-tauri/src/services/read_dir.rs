@@ -4,6 +4,8 @@ use tauri::{
     plugin::{Builder, TauriPlugin},
     Runtime,
 };
+extern crate dirs;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CurrFile {
     pub name: String,
@@ -11,7 +13,7 @@ pub struct CurrFile {
     pub is_dir: bool,
     pub is_compressed: bool,
 }
-
+#[derive(Serialize, Deserialize)]
 pub struct Directory {
     pub name: String,
     pub path: PathBuf,
@@ -19,7 +21,7 @@ pub struct Directory {
 
 impl Directory {
     pub fn new() -> Self {
-        let curr_dir = std::env::current_dir().unwrap();
+        let curr_dir = dirs::home_dir().unwrap();
         Self {
             name: curr_dir.file_name().unwrap().to_str().unwrap().to_string(),
             path: curr_dir,
@@ -51,6 +53,9 @@ impl Directory {
                 .to_string();
             let is_dir = path.is_dir();
             let is_compressed = name.ends_with(".pcompressed");
+            if name.starts_with(".") {
+                continue;
+            }
             curr_files.push(CurrFile {
                 name,
                 path: path.to_str().unwrap().to_string(),
@@ -63,22 +68,35 @@ impl Directory {
 }
 
 #[tauri::command]
-pub fn read_dir() -> Vec<CurrFile> {
-    let directory = Directory::new();
-    directory.read_current_dir()
+pub fn read_dir(curr_dir: Option<Directory>) -> (Vec<CurrFile>, Directory) {
+    match curr_dir {
+        Some(dir) => (dir.read_current_dir(), dir),
+        None => {
+            let mut dir = Directory::new();
+            (dir.read_current_dir(), dir)
+        }
+    }
 }
 
 #[tauri::command]
-pub fn click_dir(selected_dir: CurrFile) -> Vec<CurrFile> {
+pub fn click_dir(selected_dir: CurrFile) -> (Vec<CurrFile>, Directory) {
     let directory = Directory::from(&selected_dir);
-    directory.read_current_dir()
+    (directory.read_current_dir(), directory)
 }
 
 #[tauri::command]
-pub fn back_dir() -> Vec<CurrFile> {
-    let mut directory = Directory::new();
-    directory.back();
-    directory.read_current_dir()
+pub fn back_dir(curr_dir: Option<Directory>) -> (Vec<CurrFile>, Directory) {
+    match curr_dir {
+        Some(mut dir) => {
+            dir.back();
+            (dir.read_current_dir(), dir)
+        }
+        None => {
+            let mut dir = Directory::new();
+            dir.back();
+            (dir.read_current_dir(), dir)
+        }
+    }
 }
 
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
