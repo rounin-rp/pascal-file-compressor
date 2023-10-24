@@ -1,5 +1,9 @@
 use serde::{Deserialize, Serialize};
 use std::{fs, path::PathBuf};
+use tauri::{
+    plugin::{Builder, TauriPlugin},
+    Runtime,
+};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CurrFile {
     pub name: String,
@@ -75,4 +79,10 @@ pub fn back_dir() -> Vec<CurrFile> {
     let mut directory = Directory::new();
     directory.back();
     directory.read_current_dir()
+}
+
+pub fn init<R: Runtime>() -> TauriPlugin<R> {
+    Builder::new("read_dir")
+        .invoke_handler(tauri::generate_handler![read_dir, click_dir, back_dir])
+        .build()
 }

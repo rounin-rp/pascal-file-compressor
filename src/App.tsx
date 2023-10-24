@@ -25,7 +25,7 @@ function App() {
   const onClickHandler = async (currDir: Directory, currIndex: number) => {
     if(currDir.is_dir){
         clearSelection();
-        invoke("click_dir", {selectedDir: currDir}).then((result) => {
+        invoke("plugin:read_dir|click_dir", {selectedDir: currDir}).then((result) => {
         setDirectory(result);
       });
     }else{
@@ -41,15 +41,16 @@ function App() {
   const backClickHandler = () => {
     setSelectedFile(null);
     setSelectedFileIndex(-1);
-    invoke("back_dir").then((result) => {
+    invoke("plugin:read_dir|back_dir").then((result) => {
       setDirectory(result);
     });
   }
 
   useEffect(() => {
-    invoke("read_dir").then((result) => {
+    invoke("plugin:read_dir|read_dir").then((result) => {
       setDirectory(result);
     });
+    console.log('directory = ', directory);
   }, [directory]);
 
   useEffect(() => {

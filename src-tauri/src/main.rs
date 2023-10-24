@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod read_dir;
+mod services;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -10,12 +10,8 @@ fn greet(name: &str) -> String {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![
-            greet,
-            read_dir::read_dir,
-            read_dir::click_dir,
-            read_dir::back_dir
-        ])
+        .invoke_handler(tauri::generate_handler![greet,])
+        .plugin(services::read_dir::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
