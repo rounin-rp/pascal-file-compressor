@@ -5,16 +5,28 @@ import dirLogo from "./assets/folder.png";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [directory, setDirectory] = useState([]);
-  const [name, setName] = useState("");
+interface Directory {
+  name: string;
+  path: string;
+  is_dir: boolean;
+}
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet", { name }));
-    //let resultOfReadDir = await invoke("read_dir");
-    //console.log(resultOfReadDir);
+function App() {
+  const [directory, setDirectory] = useState([]);
+
+  const onClickHandler = async (currDir: Directory) => {
+    console.log(currDir);
+    if(currDir.is_dir){
+      invoke("click_dir", {selectedDir: currDir}).then((result) => {
+        setDirectory(result);
+      });
+    }
+  }
+
+  const backClickHandler = () => {
+    invoke("back_dir").then((result) => {
+      setDirectory(result);
+    });
   }
 
   useEffect(() => {
@@ -26,14 +38,16 @@ function App() {
   return (
     <div className="container">
       <h1>Pascal File Compressor</h1>
-
+      <div className="backButton">
+        <button onClick={backClickHandler}>Back</button>
+      </div>
       {directory.map((file) => (
-        <div>
+        <div className="fileDisplay" onClick={() => onClickHandler(file)}>
           <span>
           {file.is_dir ? (
-            <img src={dirLogo}  />
-          ): (
-            <img src={fileLogo} />
+            <img src={dirLogo} style={{"height": "50px", "width": "50px"}} />
+          ):(
+            <img src={fileLogo} style={{"height": "50px", "width": "50px"}} />
             )}
           </span>
           <p>{file.name}</p>
@@ -41,29 +55,6 @@ function App() {
       ))}
     </div>
   )
-
- // return (
- //   <div className="container">
- //     <h1>Welcome to Tauri!</h1>
-
- //     <form
- //       className="row"
- //       onSubmit={(e) => {
- //         e.preventDefault();
- //         greet();
- //       }}
- //     >
- //       <input
- //         id="greet-input"
- //         onChange={(e) => setName(e.currentTarget.value)}
- //         placeholder="Enter a name..."
- //       />
- //       <button type="submit">Greet</button>
- //     </form>
-
- //     <p>{greetMsg}</p>
- //   </div>
- // );
 }
 
 export default App;

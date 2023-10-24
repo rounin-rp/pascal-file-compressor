@@ -10,7 +10,12 @@ fn greet(name: &str) -> String {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, read_dir::read_dir])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            read_dir::read_dir,
+            read_dir::click_dir,
+            read_dir::back_dir
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

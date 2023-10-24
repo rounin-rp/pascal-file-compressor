@@ -20,6 +20,14 @@ impl Directory {
             path: curr_dir,
         }
     }
+    pub fn from(current_dir: &CurrFile) -> Self {
+        std::env::set_current_dir(current_dir.path.clone());
+        let curr_dir = std::env::current_dir().unwrap();
+        Self {
+            name: curr_dir.file_name().unwrap().to_str().unwrap().to_string(),
+            path: curr_dir,
+        }
+    }
     pub fn back(&mut self) {
         self.path.pop();
         self.name = self.path.file_name().unwrap().to_str().unwrap().to_string();
@@ -50,5 +58,18 @@ impl Directory {
 #[tauri::command]
 pub fn read_dir() -> Vec<CurrFile> {
     let directory = Directory::new();
+    directory.read_current_dir()
+}
+
+#[tauri::command]
+pub fn click_dir(selected_dir: CurrFile) -> Vec<CurrFile> {
+    let directory = Directory::from(&selected_dir);
+    directory.read_current_dir()
+}
+
+#[tauri::command]
+pub fn back_dir() -> Vec<CurrFile> {
+    let mut directory = Directory::new();
+    directory.back();
     directory.read_current_dir()
 }
